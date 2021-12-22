@@ -1,0 +1,60 @@
+seats = 43
+step=10
+import numpy as np
+def jefferson(population):
+    divisor = sum(population)/seats
+    average_population = population/divisor
+    k=average_population.astype(int)
+    while np.sum(k)<seats:
+       divisor -= step
+       average_population = population/divisor
+       k=average_population.astype(int)
+    return k
+
+def adams(population):
+    divisor = sum(population)/seats
+    average_population = population/divisor
+    k=np.ceil(average_population)
+    while np.sum(k)!=seats:
+       divisor += step
+       average_population = population/divisor
+       k=np.ceil(average_population)
+    return k.astype(int)
+
+def remainders(a,d):
+    return a%d
+
+def hamilton(population):
+    divisor = sum(population)/seats
+    average_population = population/divisor
+    assignment = average_population.astype(int)
+    give_me_remainders = np.vectorize(remainders)
+    k = give_me_remainders(population,divisor)
+    k=np.argsort(k)
+    d = seats - np.sum(assignment)
+    for i in range(1,d+1):
+        assignment[k[i-1]]+=1
+    return assignment
+
+def hill_helper(p,d):
+    return p/np.sqrt(d*(d+1))
+
+def huntington_hill_technique(population):
+    s = np.ones((len(population),), dtype=int)
+    best_seat = np.vectorize(hill_helper)
+    while np.sum(s)!=seats:
+        k=best_seat(population,s)
+        s[np.argmax(k)]+=1
+    return s
+
+
+def main():
+    population = np.array([21878,9713,4167,3252,1065])
+    print("Population                   :",population)
+    print("Division by Thomas Jefferson :",jefferson(population))
+    print("Division by Hamilton Method  :",hamilton(population))
+    print("Division by John Quincy Adams:",adams(population))
+    print("Division by huntington hill  :",huntington_hill_technique(population))
+
+if __name__=="__main__":
+    main()
